@@ -1,5 +1,9 @@
 package part2datastreams
 
+import org.apache.flink.api.common.serialization.SimpleStringEncoder
+import org.apache.flink.core.fs.Path
+import org.apache.flink.streaming.api.functions.sink.SinkFunction
+import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
 import org.apache.flink.streaming.api.scala._
 
 object EssentialStream {
@@ -79,8 +83,17 @@ object EssentialStream {
         Tuple2.apply(it,fizzbuzz)
     }.filter( it => it._2 =="fizzbuzz").map(_._1)
 
-    val file = input.writeAsText("output/fizzbuzz.txt")
-    file.setParallelism(2)
+    //val file = input.writeAsText("output/fizzbuzz.txt")
+
+    val fileSink: SinkFunction[Int] = StreamingFileSink.forRowFormat(
+      new Path("output/streamingfizzbuzz"),
+      new SimpleStringEncoder[Int]("UTF-8")
+    ).build()
+
+    input.addSink(
+      fileSink
+    ).setParallelism(2)
+
 
     val print = input.print()
     // it print the thread number and then the number itself
