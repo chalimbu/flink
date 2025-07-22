@@ -244,6 +244,13 @@ object WindowFunctions {
     }
   }
 
+  /*
+   Exercise: what was the time windows (continous 2s) when we had the most registration events
+   executeAndCollect
+   */
+
+
+
   def main(args: Array[String]): Unit = {
     demoGlobalWindow()
   }
