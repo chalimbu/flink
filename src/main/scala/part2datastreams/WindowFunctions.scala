@@ -5,7 +5,7 @@ import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, Wat
 import org.apache.flink.api.common.functions.AggregateFunction
 import org.apache.flink.api.scala.createTypeInformation
 import org.apache.flink.streaming.api.scala.function.{AllWindowFunction, ProcessAllWindowFunction, ProcessWindowFunction, WindowFunction}
-import org.apache.flink.streaming.api.scala.{DataStream, KeyedStream, StreamExecutionEnvironment}
+import org.apache.flink.streaming.api.scala.{CloseableIterator, DataStream, KeyedStream, StreamExecutionEnvironment}
 import org.apache.flink.streaming.api.windowing.assigners.{EventTimeSessionWindows, GlobalWindows, SlidingEventTimeWindows, TumblingEventTimeWindows}
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.windowing.triggers.CountTrigger
@@ -249,9 +249,44 @@ object WindowFunctions {
    executeAndCollect
    */
 
+  case class TimeWindowCount(val start: Long, val end: Long,val count: Int )
+
+  class CountByWindowAllType extends AllWindowFunction[ServerEvent, TimeWindowCount, TimeWindow] {
+    override def apply(window: TimeWindow, input: Iterable[ServerEvent], out: Collector[TimeWindowCount]): Unit = {
+      val registrationEventCount = input.count(events => events.isInstanceOf[PlayerRegistered])
+      out.collect(TimeWindowCount(window.getStart,window.getEnd,registrationEventCount))
+    }
+  }
+
+  def exerciseSolution(): Unit = {
+    val windowsSize: Time = Time.seconds(2)
+    val slidingTime: Time = Time.seconds(1)
+
+    val slidingWindowsAll = eventStream.windowAll(SlidingEventTimeWindows.of(windowsSize,slidingTime))
+    // process the windowed stream with similar window function
+    val registrationCountByWindow = slidingWindowsAll.apply(new CountByWindowAllType)
+
+    val result = registrationCountByWindow.executeAndCollect().toList
+
+    println(result.maxBy( f => f.count).toString)
+
+  }
+
+  // video notes
+  /*
+   What kind of window funcion should we use? sliding function, because in continous 2 second
+   filter(_.isinstanceof[PlayerRegistered])
+   .windowAll(SlidingEventTimeWindows.of(Time.seconds(2), Time.seconds(1)))
+   .apply(new KeepWindowAndCountFunction)
+
+   val localWindows: List[(TimeWindow,Long)] = slidingWindowsAll.executeAndCollect().toList
+   val bestWindow = localWindows.maxBy(_._2)
+   println("the best windows is ${bestWindow._1} with ${bestWindow._2} registration events")}
+   */
+
 
 
   def main(args: Array[String]): Unit = {
-    demoGlobalWindow()
+    exerciseSolution()
   }
 }
