@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/flink-essentials.iml" filepath="$PROJECT_DIR$/.idea/modules/flink-essentials.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/flink-essentials.flink-essentials-build.iml" filepath="$PROJECT_DIR$/.idea/modules/flink-essentials.flink-essentials-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/flink-essentials.flink-essentials-build~1.iml" filepath="$PROJECT_DIR$/.idea/modules/flink-essentials.flink-essentials-build~1.iml" />
     </modules>
   </component>
 </project>

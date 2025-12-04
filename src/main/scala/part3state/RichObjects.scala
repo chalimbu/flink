@@ -1,7 +1,7 @@
 package part3state
 
 import generators.shopping.{AddToShoppingCartEvent, SingleShoppingCartEventsGenerator}
-import org.apache.flink.api.common.functions.{MapFunction, RichMapFunction}
+import org.apache.flink.api.common.functions.{MapFunction, RichFlatMapFunction, RichMapFunction}
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.ProcessFunction
@@ -86,26 +86,11 @@ object RichObjects {
         .filter(_.isInstanceOf[AddToShoppingCartEvent])
         .map(_.asInstanceOf[AddToShoppingCartEvent])
 
-      /*val withProcessFunction = shopingCartStream.process(new ProcessFunction[AddToShoppingCartEvent,String] {
-        override def processElement(value: AddToShoppingCartEvent,
-                                    ctx: ProcessFunction[AddToShoppingCartEvent, String]#Context,
-                                    out: Collector[String]): Unit = {
-          var i = 0
-          while ( i<value.quantity){
-            out.collect(value.sku)
-            i = i+1
-          }
-        }
-      }).print()*/
-
       exerciseEnv.execute()
     }
 
 
   def main(args: Array[String]): Unit = {
-    //tenXNumbersWithLifecycle.print()
-
-    //env.execute()
     exercise()
   }
 }
