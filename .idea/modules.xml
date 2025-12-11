@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/checkpoints.iml" filepath="$PROJECT_DIR$/.idea/modules/checkpoints.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/checkpoints.main.iml" filepath="$PROJECT_DIR$/.idea/modules/checkpoints.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/checkpoints.test.iml" filepath="$PROJECT_DIR$/.idea/modules/checkpoints.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/flink-essentials.iml" filepath="$PROJECT_DIR$/.idea/modules/flink-essentials.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/flink-essentials.flink-essentials-build.iml" filepath="$PROJECT_DIR$/.idea/modules/flink-essentials.flink-essentials-build.iml" />
     </modules>
