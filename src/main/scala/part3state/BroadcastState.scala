@@ -56,11 +56,8 @@ object BroadcastState {
       // key, input stream, broadcast input, output
       .process(new KeyedBroadcastProcessFunction[String,ShoppingCartEvent,Int,String] {
 
-        var thresholdDescriptor:MapStateDescriptor[String,Int] = _
-
-        override def open(parameters: Configuration): Unit = {
-          thresholdDescriptor = new MapStateDescriptor[String,Int]("thresholds",classOf[String],classOf[Int])
-        }
+        val thresholdDescriptor:MapStateDescriptor[String,Int] =
+          new MapStateDescriptor[String,Int]("thresholds",classOf[String],classOf[Int])
 
         override def processBroadcastElement(newThreshold: Int,
                                              ctx: KeyedBroadcastProcessFunction[String, ShoppingCartEvent, Int, String]#Context,
@@ -77,14 +74,9 @@ object BroadcastState {
                                     out: Collector[String]): Unit = {
           event match {
             case AddToShoppingCartEvent(userId, sku, quantity, time) => {
-              val hasState = ctx.getBroadcastState(thresholdDescriptor).contains("quantity-threshold")
-              val currentThreshold: Int = if(hasState){
-                ctx.getBroadcastState(thresholdDescriptor).get("quantity-threshold")
-              }else {
-                0
-              }
+              val currentThreshold: Int = ctx.getBroadcastState(thresholdDescriptor).get("quantity-threshold")
               if(quantity>currentThreshold){
-                out.collect(s" User $userId attemping to purchase $quantity items of $sku when threshold is $threshold")
+                out.collect(s" User $userId attemping to purchase $quantity items of $sku when threshold is $currentThreshold")
               }
             }
             case _ =>
