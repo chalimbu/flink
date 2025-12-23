@@ -6,6 +6,7 @@ import org.apache.flink.streaming.api.scala._
 
 import java.io.{BufferedReader, DataOutputStream, InputStreamReader, PrintStream}
 import java.net.{ServerSocket, Socket, SocketAddress}
+import java.util.Scanner
 import scala.util.Random
 
 object CustomSources {
@@ -117,18 +118,25 @@ object CustomSources {
    *
    */
 
-    class SocketStringSource(host: String,port: Int) extends SourceFunction[String] {
+    class SocketStringSource(host: String,port: Int) extends RichSourceFunction[String] {
 
+    // whenever managing a resoruce better to user richsoruce function
+    var socket: Socket = _
     var running = true;
 
-    override def run(ctx: SourceFunction.SourceContext[String]): Unit = {
-      val socket = new Socket(host,port)
-      while (running){
+    override def open(parameters: Configuration): Unit = {
+      socket = new Socket(host,port)
+    }
 
-        val dataOuput = new BufferedReader(new InputStreamReader(socket.getInputStream))
-        ctx.collect(dataOuput.readLine())
-      }
+    override def close(): Unit = {
       socket.close()
+    }
+
+    override def run(ctx: SourceFunction.SourceContext[String]): Unit = {
+        val scanner = new Scanner(socket.getInputStream)
+        while(running && scanner.hasNextLine){
+          ctx.collect(scanner.nextLine())
+        }
     }
 
     override def cancel(): Unit = {
