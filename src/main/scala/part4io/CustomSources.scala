@@ -4,8 +4,8 @@ import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.source.{RichParallelSourceFunction, RichSourceFunction, SourceFunction}
 import org.apache.flink.streaming.api.scala._
 
-import java.io.PrintStream
-import java.net.ServerSocket
+import java.io.{BufferedReader, DataOutputStream, InputStreamReader, PrintStream}
+import java.net.{ServerSocket, Socket, SocketAddress}
 import scala.util.Random
 
 object CustomSources {
@@ -119,13 +119,34 @@ object CustomSources {
 
     class SocketStringSource(host: String,port: Int) extends SourceFunction[String] {
 
-    override def run(ctx: SourceFunction.SourceContext[String]): Unit = ???
+    var running = true;
 
-    override def cancel(): Unit = ???
+    override def run(ctx: SourceFunction.SourceContext[String]): Unit = {
+      val socket = new Socket(host,port)
+      while (running){
+
+        val dataOuput = new BufferedReader(new InputStreamReader(socket.getInputStream))
+        ctx.collect(dataOuput.readLine())
+      }
+      socket.close()
+    }
+
+    override def cancel(): Unit = {
+      running = false
+    }
   }
 
+  def exerciseSocket(): Unit = {
+    val env = StreamExecutionEnvironment.getExecutionEnvironment
+    val numberStream: DataStream[String] = env.addSource(new SocketStringSource("localhost",12345))
+    numberStream.print()
+    env.execute()
+  }
+
+
+
   def main(args: Array[String]): Unit = {
-    demoSourceFunction
+    exerciseSocket
   }
 }
 
@@ -137,7 +158,7 @@ object CustomSources {
 object DataSender {
   def main(args: Array[String]): Unit = {
     val serverSocket = new ServerSocket(12345)
-    println("waiting for flink to connect")
+    println("waiting for flink to connect to port 12345")
     val socket = serverSocket.accept()
     println("flink connected sending data")
     val printer = new PrintStream(socket.getOutputStream)
